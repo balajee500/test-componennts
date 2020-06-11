@@ -1,4 +1,4 @@
-public class UserHelper {
+public with sharing class UserHelper {
     public static Boolean isTriggerRun = false;
     public static void afterInsert(Map<Id, User> newUserMap, Map<Id, User> oldUserMap) {
        processRecordsForHireVue(newUserMap, oldUserMap);
@@ -28,7 +28,7 @@ public class UserHelper {
         	sfUser = [SELECT Id, Name, FirstName, LastName, Email, MobilePhone, LanguageLocaleKey, Phone FROM User WHERE Id = :userId];
             HireVueAPI.LoginResult loginRslt;
             if (connector.mp_Credentials.isEmpty()) {
-                loginRslt = connector.getLoginCrendentials(null);
+                loginRslt = connector.getLoginCredentials(null);
                 connector.mp_Credentials = loginRslt.mp_Credentials;
                 if(!loginRslt.isSuccess) {
                     message = 'Login Failed : error-code : '+loginRslt.errorCode+', error-message : '+loginRslt.errorMessage;
@@ -59,7 +59,7 @@ public class UserHelper {
                     return;
                 }    
             }
-            loginRslt = connector.getLoginCrendentials(hireVueUserEmail);
+            loginRslt = connector.getLoginCredentials(hireVueUserEmail);
             connector.mp_Credentials = loginRslt.mp_Credentials;
             if(!loginRslt.isSuccess) {
                 message = 'User login Failed for username('+hireVueUserEmail+') : error-code : '+loginRslt.errorCode+', error-message : '+loginRslt.errorMessage;

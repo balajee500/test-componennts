@@ -7,13 +7,13 @@ public class HireVueNotificationTest {
         insert uRole;
         User usr;
         try {
-            usr = [SELECT Id, Email FROM User WHERE Email = 'abc@hirevuenotificationtestbytekclan.com'];
+            usr = [SELECT Id, Email FROM User WHERE Email = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_1];
         } catch(Exception ex) {
         	usr = new User(
                 firstname = 'ABC', 
                 lastName = 'XYZ', 
-                email = 'abc@hirevuenotificationtestbytekclan.com', 
-                Username = 'abc@hirevuenotificationtestbytekclan.com', 
+                email = HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_1, 
+                Username = HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_1, 
                 EmailEncodingKey = 'ISO-8859-1', 
                 Alias = 'abc', 
                 TimeZoneSidKey = 'America/Los_Angeles', 
@@ -27,7 +27,7 @@ public class HireVueNotificationTest {
             insert usr;     
         }
         Test.startTest();
-        HireVueTestData.loadPreRequisiteDatas('abc@hirevuenotificationtestbytekclan.com');
+        HireVueTestData.loadPreRequisiteDatas(HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_1);
         Test.stopTest();        
     }
     

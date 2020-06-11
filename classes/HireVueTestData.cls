@@ -2,14 +2,14 @@
 public class HireVueTestData {
     
     public static Map<String, HttpCalloutMock> getMockReponsesForUserTrigger(Map<String, String> mp_HireVueConfigs) {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
         Map<String, HttpCalloutMock> mp_fakeResponses = new Map<String,HttpCalloutMock>();
         Map<String, String> mp_responsHeader = new Map<String, String>();
         String baseUrl = mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL);
         HireVueSingleRequestMock singleReqMock; 
         // fake mock - login
-        mp_responsHeader.put('Set-Cookie', 'ajs_group_id=null; _ga=GA1.2.1685704596.1588138661; _gid=GA1.2.1399613300.1588579095; cookie_policy={"date":1588118052000,"analytic":true,"customization":true}; ajs_user_id=%22bb5780e52a634a23b68e3feffde997f5%22; ajs_anonymous_id=%229e8f8920-128d-489d-b157-24db4c027b47%22; csrftoken=hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil; sessionid=0pdat9uz0drs5ys4dgg573mgpj3058hl');
-        mp_responsHeader.put('csrftoken', 'hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_SET_COOKIE, HireVueConstants.TEST_DATA_COOKIE_VALUE);
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_CSRFTOKEN, HireVueConstants.TEST_DATA_CSRFTOKEN_VALUE);
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_LOGIN, singleReqMock);
         // fake mock - User not found for user fetch
@@ -19,12 +19,12 @@ public class HireVueTestData {
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_USER + usr.Email +'/', singleReqMock);
         // fake mock - User creation
         mp_responsHeader = new Map<String, String>();
-        mp_responsHeader.put('x-hvapi-id', '117046');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_HVAPI_ID, '117046');
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_USER, singleReqMock);
         // fake mock - position creation
         mp_responsHeader = new Map<String, String>();
-        mp_responsHeader.put('x-hvapi-id', '2355255');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_HVAPI_ID, '2355255');
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_POSITION, singleReqMock);
         // fake mock - Session Fetch attached to position
@@ -58,8 +58,8 @@ public class HireVueTestData {
         String baseUrl = mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL);
         HireVueSingleRequestMock singleReqMock; 
         // fake mock - login
-        mp_responsHeader.put('Set-Cookie', 'ajs_group_id=null; _ga=GA1.2.1685704596.1588138661; _gid=GA1.2.1399613300.1588579095; cookie_policy={"date":1588118052000,"analytic":true,"customization":true}; ajs_user_id=%22bb5780e52a634a23b68e3feffde997f5%22; ajs_anonymous_id=%229e8f8920-128d-489d-b157-24db4c027b47%22; csrftoken=hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil; sessionid=0pdat9uz0drs5ys4dgg573mgpj3058hl');
-        mp_responsHeader.put('csrftoken', 'hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_SET_COOKIE, HireVueConstants.TEST_DATA_COOKIE_VALUE);
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_CSRFTOKEN, HireVueConstants.TEST_DATA_CSRFTOKEN_VALUE);
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_LOGIN, singleReqMock);
         // fake mock - User found for user fetch
@@ -68,7 +68,7 @@ public class HireVueTestData {
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_USER + usr.Email +'/', singleReqMock);
         // fake mock - candidate creation
         mp_responsHeader = new Map<String, String>();
-        mp_responsHeader.put('x-hvapi-id', '43148575');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_HVAPI_ID, '43148575');
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_POSITION + usr.Hirevue_Position_Id__c + '/interviews/', singleReqMock);
         // fake mock - Candidate Fetch
@@ -77,21 +77,21 @@ public class HireVueTestData {
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_POSITION + usr.Hirevue_Position_Id__c + '/interviews/43148575/', singleReqMock);
         // fake mock - Binding Evaluators to a position
         mp_responsHeader = new Map<String, String>();
-        mp_responsHeader.put('x-hvapi-id', 'abc.evaluator@usertriggettestbytekclan.com');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_HVAPI_ID, 'abc.evaluator@usertriggettestbytekclan.com');
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_POSITION + usr.Hirevue_Position_Id__c + '/evaluators/', singleReqMock);
         return mp_fakeResponses;
     }
     
     public static Map<String, HttpCalloutMock> getMockReponsesForEventNotification(Map<String, String> mp_HireVueConfigs) {
-        user usr = [SELECT Id, Email, Hirevue_Position_Id__c FROM User WHERE Username = 'abc@hirevuenotificationtestbytekclan.com'];
+        user usr = [SELECT Id, Email, Hirevue_Position_Id__c FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_1];
         Map<String, HttpCalloutMock> mp_fakeResponses = new Map<String,HttpCalloutMock>();
         Map<String, String> mp_responsHeader = new Map<String, String>();
         String baseUrl = mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL);
         HireVueSingleRequestMock singleReqMock; 
         // fake mock - login
-        mp_responsHeader.put('Set-Cookie', 'ajs_group_id=null; _ga=GA1.2.1685704596.1588138661; _gid=GA1.2.1399613300.1588579095; cookie_policy={"date":1588118052000,"analytic":true,"customization":true}; ajs_user_id=%22bb5780e52a634a23b68e3feffde997f5%22; ajs_anonymous_id=%229e8f8920-128d-489d-b157-24db4c027b47%22; csrftoken=hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil; sessionid=0pdat9uz0drs5ys4dgg573mgpj3058hl');
-        mp_responsHeader.put('csrftoken', 'hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_SET_COOKIE, HireVueConstants.TEST_DATA_COOKIE_VALUE);
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_CSRFTOKEN, HireVueConstants.TEST_DATA_CSRFTOKEN_VALUE);
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_LOGIN, singleReqMock);
         // fake mock - Candidate Fetch
@@ -103,7 +103,6 @@ public class HireVueTestData {
         singleReqMock = new HireVueSingleRequestMock(200, 'Complete', sessionResBody, null);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_POSITION + usr.Hirevue_Position_Id__c + '/interviews/43148575/sessions/', singleReqMock);
         // fake mock - comments fetch
-        String commentsResBody = '[{"text": "Test Comment", "author": {"username": "abc@hirevuenotificationtestbytekclan.com"}}]';
         singleReqMock = new HireVueSingleRequestMock(200, 'Complete', sessionResBody, null);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_POSITION + usr.Hirevue_Position_Id__c + '/interviews/43148575/sessions/3456789/comments/?qo=-createDate', singleReqMock);
         return mp_fakeResponses;

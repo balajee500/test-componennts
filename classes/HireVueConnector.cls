@@ -1,10 +1,10 @@
-public class HireVueConnector {
+public without sharing class  HireVueConnector {
     
 	public Map<String, String> mp_Credentials {
         get {
             if (mp_Credentials == null) {
             	mp_Credentials = new Map<String, String>(); 
-                HireVueAPI.LoginResult loginRslt = getLoginCrendentials(null);
+                HireVueAPI.LoginResult loginRslt = getLoginCredentials(null);
                 if(loginRslt.isSuccess) {
 					mp_Credentials = loginRslt.mp_Credentials;
                 }
@@ -56,7 +56,7 @@ public class HireVueConnector {
 	 * @param user email address
      * @return credentials with key-value pairs
      */
-    public HireVueAPI.LoginResult getLoginCrendentials(String userName) {
+    public HireVueAPI.LoginResult getLoginCredentials(String userName) {
         HireVueAPI.LoginResult loginRslt = new HireVueAPI.LoginResult();
         loginRslt.isSuccess = true;
         loginRslt.mp_Credentials = new Map<String, String>();
@@ -67,7 +67,7 @@ public class HireVueConnector {
         } else {
             gen.writeStringField('impersonate', mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_USERNAME));
         }
-        gen.writeStringField('apiKey', mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_PASSWORD));
+        gen.writeStringField('apiKey', mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_API_CODE));
         gen.writeStringField('applicationToken', mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_APPLICATION_TOKEN));
         gen.writeStringField('version', mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_VERSION));
         gen.writeEndObject();
@@ -79,13 +79,13 @@ public class HireVueConnector {
             jsonBody
         );
         if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
-            loginRslt.mp_Credentials.put('X-CSRFToken', res.getHeader('csrftoken'));
-            String cookieString = res.getHeader('Set-Cookie');
+            loginRslt.mp_Credentials.put('X-CSRFToken', res.getHeader(HireVueConstants.HDR_KEY_CSRFTOKEN));
+            String cookieString = res.getHeader(HireVueConstants.HDR_KEY_SET_COOKIE);
             if (String.isNotBlank(cookieString)) {
                 List<String> lst_Cookies = cookieString.split(HireVueConstants.DELIMITER_SEMICOLON);
                 String cookieVal = '';
                 for (String item : lst_Cookies) {
-                    if (item.contains('csrftoken')) {
+                    if (item.contains(HireVueConstants.HDR_KEY_CSRFTOKEN)) {
                         cookieVal += item + HireVueConstants.DELIMITER_SEMICOLON;
                     }
                     if (item.contains('sessionid')) {
@@ -201,7 +201,7 @@ public class HireVueConnector {
         HireVueApi.QueryResult qryRslt = new HireVueApi.QueryResult();
         qryRslt.isSuccess = true;
         HttpResponse res = invokeApi(
-            mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION +positionId+ '/interviews/' +interviewId+ '/sessions/' , 
+            mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION + positionId + HireVueConstants.PATH_INTERVIEWS + interviewId + HireVueConstants.PATH_SESSIONS , 
             'GET', 
             mp_Credentials, 
             null
@@ -238,7 +238,7 @@ public class HireVueConnector {
             return qryRslt;
         }
         HttpResponse res = invokeApi(
-            mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION +positionId+ '/interviews/' +interviewId+ '/sessions/'+lst_Session[lst_Session.size() - 1].id+'/comments/?qo=-createDate' , 
+            mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION +positionId+ HireVueConstants.PATH_INTERVIEWS +interviewId+ HireVueConstants.PATH_SESSIONS+lst_Session[lst_Session.size() - 1].id+'/comments/?qo=-createDate' , 
             'GET', 
             mp_Credentials, 
             null
@@ -341,7 +341,7 @@ public class HireVueConnector {
             mp_Headers.put(HireVueConstants.HDR_KEY_SEND_INTERVIEWER_CANCELLATION_EMAIL, 'true');
             mp_Headers.put(HireVueConstants.HDR_KEY_SUPPRESS_CANDIDATE_EMAIL, 'true');
         }
-        HttpResponse res = invokeApi(mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION + positionId +'/interviews/'+interviewId+'/', 'PUT', mp_Headers, JSON.serialize(interview, true));
+        HttpResponse res = invokeApi(mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION + positionId +HireVueConstants.PATH_INTERVIEWS+interviewId+'/', 'PUT', mp_Headers, JSON.serialize(interview, true));
         if (res.getStatusCode() == 200 || res.getStatusCode() == 201 || res.getStatusCode() == 204) {
             rslt.recordId = getHireVueObjectId(res);
         } else {
@@ -412,7 +412,7 @@ public class HireVueConnector {
     public HireVueApi.QueryResult getCandidateAttachedToPostion(String positionId, String interviewId) {
         HireVueApi.QueryResult qryRslt = new HireVueApi.QueryResult();
         qryRslt.isSuccess = true;
-        HttpResponse res = invokeApi(mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION + positionId + '/interviews/' +interviewId+'/', 'GET', mp_Credentials, null);
+        HttpResponse res = invokeApi(mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION + positionId + HireVueConstants.PATH_INTERVIEWS +interviewId+'/', 'GET', mp_Credentials, null);
         if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
             qryRslt.data = JSON.deserialize(res.getBody(), HireVueObjects.Candidate.class);
         } else {
@@ -619,7 +619,7 @@ public class HireVueConnector {
                 candidate.participants.add(interviewer);
             }
             HttpResponse res = invokeApi(
-                mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION + positionid + '/interviews/', 
+                mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL) + HireVueConstants.API_POSITION + positionid + HireVueConstants.PATH_INTERVIEWS, 
                 'POST', 
                 mp_Credentials, 
                 JSON.serialize(candidate, true)
@@ -642,9 +642,9 @@ public class HireVueConnector {
      * @return HireVue Object Id
      */
     public static String getHireVueObjectId(HttpResponse res) {
-        String objectId = res.getHeader('x-hvapi-id');
+        String objectId = res.getHeader(HireVueConstants.HDR_KEY_HVAPI_ID);
         if (String.isBlank(objectId)) {
-            objectId = res.getHeader('X-HvApi-Id');
+            objectId = res.getHeader(HireVueConstants.HDR_KEY_HVAPI_ID);
         }
         String location = res.getHeader('location');
         if (String.isBlank(objectId) && String.isNotBlank(location)) {
@@ -684,5 +684,15 @@ public class HireVueConnector {
         errLog.Class_Name__c = className;
         errLog.Method_Name__c = methodName;
         insert errLog;
+    }
+    /**
+     * @description Constructs and return the error message
+     * 
+     * @param error code
+     * @param error message
+     * @return result of constructed error message
+     */
+    public String constructErrorMesage(String errorcode, String errorMessage) {
+        return '\nerror-code : '+errorcode+', error-message : '+errorMessage;
     }
 }

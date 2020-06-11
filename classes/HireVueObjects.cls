@@ -173,7 +173,6 @@ public class HireVueObjects {
     
     public class EvaluationDetail {
         public Boolean isComplete;
-        //public Long averageRating;
         public String decision;
         public Boolean isParticipant;
         public String participantCode;

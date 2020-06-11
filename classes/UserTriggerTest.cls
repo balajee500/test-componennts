@@ -4,13 +4,13 @@ public class UserTriggerTest {
         Profile pf= [Select Id from profile where Name = 'System Administrator']; 
         User usr;
         try {
-            usr = [SELECT id from User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+            usr = [SELECT id from User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
         } catch(Exception ex) {
         	usr = new User(
                 firstname = 'ABC', 
                 lastName = 'XYZ', 
-                email = 'abc@usertriggettestbytekclan.com', 
-                Username = 'abc@usertriggettestbytekclan.com', 
+                email = HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2, 
+                Username = HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2, 
                 EmailEncodingKey = 'ISO-8859-1', 
                 Alias = 'abc', 
                 TimeZoneSidKey = 'America/Los_Angeles', 
@@ -24,7 +24,7 @@ public class UserTriggerTest {
         
     }
     @isTest static void success_createUserInHireVue() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();
         Map<String, HttpCalloutMock> mp_fakeResponses = HireVueTestData.getMockReponsesForUserTrigger(mp_HireVueConfigs);
         HttpCalloutMock multiCalloutMock = new HireVueMultiRequestMock(mp_fakeResponses);
@@ -40,7 +40,7 @@ public class UserTriggerTest {
     }
     
     @isTest static void success_createPositionIfUserAlreadyExist() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
         
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();
         Map<String, HttpCalloutMock> mp_fakeResponses = HireVueTestData.getMockReponsesForUserTrigger(mp_HireVueConfigs); 
@@ -62,7 +62,7 @@ public class UserTriggerTest {
     }
     
     @isTest static void success_getPositionFromHireVueAndUpdateTheUser() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
  		
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();
         Map<String, HttpCalloutMock> mp_fakeResponses = HireVueTestData.getMockReponsesForUserTrigger(mp_HireVueConfigs); 
@@ -91,7 +91,7 @@ public class UserTriggerTest {
     }
     
     @isTest static void success_userDeactivation() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
  		
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();    
         Map<String, HttpCalloutMock> mp_fakeResponses = new Map<String,HttpCalloutMock>();
@@ -100,8 +100,8 @@ public class UserTriggerTest {
         String baseUrl = mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL);
         HireVueSingleRequestMock singleReqMock; 
         // fake mock - login
-        mp_responsHeader.put('Set-Cookie', 'ajs_group_id=null; _ga=GA1.2.1685704596.1588138661; _gid=GA1.2.1399613300.1588579095; cookie_policy={"date":1588118052000,"analytic":true,"customization":true}; ajs_user_id=%22bb5780e52a634a23b68e3feffde997f5%22; ajs_anonymous_id=%229e8f8920-128d-489d-b157-24db4c027b47%22; csrftoken=hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil; sessionid=0pdat9uz0drs5ys4dgg573mgpj3058hl');
-        mp_responsHeader.put('csrftoken', 'hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_SET_COOKIE, HireVueConstants.TEST_DATA_COOKIE_VALUE);
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_CSRFTOKEN, HireVueConstants.TEST_DATA_CSRFTOKEN_VALUE);
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_LOGIN, singleReqMock);
         // fake mock - User Update
@@ -122,7 +122,7 @@ public class UserTriggerTest {
     }
     
     @isTest static void failure_userDeactivationFailed() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
  		
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();    
         Map<String, HttpCalloutMock> mp_fakeResponses = new Map<String,HttpCalloutMock>();
@@ -131,8 +131,8 @@ public class UserTriggerTest {
         String baseUrl = mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL);
         HireVueSingleRequestMock singleReqMock; 
         // fake mock - login
-        mp_responsHeader.put('Set-Cookie', 'ajs_group_id=null; _ga=GA1.2.1685704596.1588138661; _gid=GA1.2.1399613300.1588579095; cookie_policy={"date":1588118052000,"analytic":true,"customization":true}; ajs_user_id=%22bb5780e52a634a23b68e3feffde997f5%22; ajs_anonymous_id=%229e8f8920-128d-489d-b157-24db4c027b47%22; csrftoken=hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil; sessionid=0pdat9uz0drs5ys4dgg573mgpj3058hl');
-        mp_responsHeader.put('csrftoken', 'hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil');
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_SET_COOKIE, HireVueConstants.TEST_DATA_COOKIE_VALUE);
+        mp_responsHeader.put(HireVueConstants.HDR_KEY_CSRFTOKEN, HireVueConstants.TEST_DATA_CSRFTOKEN_VALUE);
         singleReqMock = new HireVueSingleRequestMock(200,'Complete', '', mp_responsHeader);
         mp_fakeResponses.put(baseUrl + HireVueConstants.API_LOGIN, singleReqMock);
         // fake mock - User Update failed
@@ -153,7 +153,7 @@ public class UserTriggerTest {
         System.assert(errLog.Message__c.contains('VALIDATIONERROR'), 'HireVue User deactivation Failed');
     }
     @isTest static void Failure_loginFailed() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
  		
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();    
         Map<String, HttpCalloutMock> mp_fakeResponses = new Map<String,HttpCalloutMock>();
@@ -177,7 +177,7 @@ public class UserTriggerTest {
         System.assert(errLog.Message__c.contains('LOGINFAILED'), 'HireVue Login Failed');
     }
     @isTest static void Failure_userCreationFailed() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
  		
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();
         Map<String, HttpCalloutMock> mp_fakeResponses = HireVueTestData.getMockReponsesForUserTrigger(mp_HireVueConfigs);
@@ -202,7 +202,7 @@ public class UserTriggerTest {
     }
     
     @isTest static void Failure_positionCreationFailed() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
         
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();
         Map<String, HttpCalloutMock> mp_fakeResponses = HireVueTestData.getMockReponsesForUserTrigger(mp_HireVueConfigs);
@@ -227,7 +227,7 @@ public class UserTriggerTest {
     }
     
     @isTest static void Failure_SesssionFetchFailed() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
         
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();
         Map<String, HttpCalloutMock> mp_fakeResponses = HireVueTestData.getMockReponsesForUserTrigger(mp_HireVueConfigs);
@@ -252,7 +252,7 @@ public class UserTriggerTest {
     }
     
     @isTest static void Failure_positionUpdateFailed() {
-        user usr = [SELECT Id, Email FROM User WHERE Username = 'abc@usertriggettestbytekclan.com'];
+        user usr = [SELECT Id, Email FROM User WHERE Username = :HireVueConstants.TEST_DATA_USER_EMAIL_ADDRESS_2];
         
         Map<String, String> mp_HireVueConfigs = HireVueTestData.getHireVueConfigs();
         Map<String, HttpCalloutMock> mp_fakeResponses = HireVueTestData.getMockReponsesForUserTrigger(mp_HireVueConfigs);

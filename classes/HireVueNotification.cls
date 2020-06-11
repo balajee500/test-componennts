@@ -1,5 +1,5 @@
 @RestResource(urlMapping='/hirevuenotification/*')
-global class HireVueNotification {
+global without sharing class HireVueNotification {
     @HttpPost
     global static void handlePost() {
         HireVueConnector connector = new HireVueConnector();
@@ -19,7 +19,9 @@ global class HireVueNotification {
             if (st_EventsToProcess.contains(evt.eventType) && evt.details.interview_id != null) {
                 try {
                 	screening = [SELECT id, Evaluation_Link__c FROM Screening__c WHERE HireVue_Interview_Id__c = :String.valueOf(evt.details.interview_id) AND ScreenStatus__c IN :st_ScreeningStatusToProcess LIMIT 1];                    
-                } catch(Exception ex) { }
+                } catch(Exception ex) { 
+                    System.debug(LoggingLevel.INFO, ex.getMessage());
+                }
                 if (screening != null) {
 					if (evt.eventType == HireVueConstants.EVENT_TYPE_INTERVIEW_FINISHED || String.isBlank(screening.Evaluation_Link__c)) {
                         screening.Evaluation_Link__c = connector.mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL)+'/evaluate/interview/'+evt.details.interview_id+'/';
@@ -31,7 +33,7 @@ global class HireVueNotification {
                 }
             }    
         } catch(Exception ex) {
-            connector.createErrorLog('HireVue Notification', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), 'HireVueNotification.cls', 'handlePost');        
+            connector.createErrorLog('HireVue Notification', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), HireVueConstants.CLASS_HIREVUENOTIFICATION, 'handlePost');        
         }
     }
     
@@ -54,7 +56,7 @@ global class HireVueNotification {
             HireVueAPI.QueryResult candidateQryRslt = connector.getCandidateAttachedToPostion(screening.Hirevue_Position_Id__c, screening.HireVue_Interview_Id__c);
             if(!candidateQryRslt.isSuccess) {
                 message = 'Candidate fetch failed : error-code : '+candidateQryRslt.errorCode+', error-message : '+candidateQryRslt.errorMessage;
-                connector.createErrorLog('HireVue Evaluation Extraction for screening('+screening.Name+')', null, message, message, 'HireVueNotification.cls', 'updateAverageRatingOnSFScreeningRecord');
+                connector.createErrorLog(HireVueConstants.MSG_EVALUATION_EXTRACTION + '('+screening.Name+')', null, message, message, HireVueConstants.CLASS_HIREVUENOTIFICATION, HireVueConstants.METHOD_UPDATE_AVERAGE_RATING);
                 return;
             }
             HireVueObjects.Candidate candidate = (HireVueObjects.Candidate)candidateQryRslt.data;
@@ -80,7 +82,7 @@ global class HireVueNotification {
             HireVueAPI.QueryResult commentsQryRslt = connector.getCommentsGivenByEvaluator(screening.Hirevue_Position_Id__c, screening.HireVue_Interview_Id__c);
             if(!commentsQryRslt.isSuccess) {
                 message = 'Comment fetch failed : error-code : '+commentsQryRslt.errorCode+', error-message : '+commentsQryRslt.errorMessage;
-                connector.createErrorLog('HireVue Evaluation Extraction for screening('+screening.Name+')', null, message, message, 'HireVueNotification.cls', 'updateAverageRatingOnSFScreeningRecord');
+                connector.createErrorLog(HireVueConstants.MSG_EVALUATION_EXTRACTION +'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_HIREVUENOTIFICATION, HireVueConstants.METHOD_UPDATE_AVERAGE_RATING);
             }
             List<HireVueObjects.Comment> lst_Comments = (List<HireVueObjects.Comment>)commentsQryRslt.data;
             if (!lst_Comments.isEmpty()) {
@@ -96,7 +98,7 @@ global class HireVueNotification {
             screeningToUpdate.Evaluator_Comments__c = evaluatorComment;
             update screeningToUpdate;
         } catch(Exception ex) {
-            connector.createErrorLog('HireVue Evaluation Extraction for screening('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), 'HireVueNotification.cls', 'updateAverageRatingOnSFScreeningRecord');
+            connector.createErrorLog(HireVueConstants.MSG_EVALUATION_EXTRACTION +'('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), HireVueConstants.CLASS_HIREVUENOTIFICATION, HireVueConstants.METHOD_UPDATE_AVERAGE_RATING);
         }
     }
 }

@@ -1,4 +1,4 @@
-public class ScreeningHelper {
+public with sharing class ScreeningHelper {
     public ScreeningHelper() {}
     public static void afterUpdate(Map<Id, Screening__c> newScreeningMap, Map<Id, Screening__c> oldScreeningMap) {
         processRecordsForHireVue(newScreeningMap, oldScreeningMap);
@@ -22,14 +22,12 @@ public class ScreeningHelper {
         ]) {
             if ((screening.ScreenStatus__c == HireVueConstants.STATUS_SCREENED) && String.isBlank(screening.HireVue_Interview_Id__c)) {
                 createCandidateInHireVue(screening.Id);
-            } else if (String.isNotBlank(screening.HireVue_Interview_Id__c)) {
-                if (oldScreeningMap != null) {
-					if ((screening.Screener__c != oldScreeningMap.get(screening.Id).Screener__c)) {
-                        addEvaluatorToPostion(screening.Id); 
-                    } else if ((screening.ScreenStatus__c == HireVueConstants.STATUS_CANCELLED || screening.ScreenStatus__c == HireVueConstants.STATUS_RESCHEDULED) && (screening.ScreenStatus__c != oldScreeningMap.get(screening.Id).ScreenStatus__c)) {
-                        deleteCandidateFromPostion(screening.Id);
-                    }                    
-                }
+            } else if (String.isNotBlank(screening.HireVue_Interview_Id__c) && oldScreeningMap != null) {
+                if ((screening.Screener__c != oldScreeningMap.get(screening.Id).Screener__c)) {
+                    addEvaluatorToPostion(screening.Id); 
+                } else if ((screening.ScreenStatus__c == HireVueConstants.STATUS_CANCELLED || screening.ScreenStatus__c == HireVueConstants.STATUS_RESCHEDULED) && (screening.ScreenStatus__c != oldScreeningMap.get(screening.Id).ScreenStatus__c)) {
+                    deleteCandidateFromPostion(screening.Id);
+                }                    
             }                          
         }
     }
@@ -49,11 +47,11 @@ public class ScreeningHelper {
                 WHERE
                     Id = :screeningId
             ];
-            HireVueAPI.LoginResult loginRslt = connector.getLoginCrendentials(screening.Screener__r.Email);
+            HireVueAPI.LoginResult loginRslt = connector.getLoginCredentials(screening.Screener__r.Email);
             connector.mp_Credentials = loginRslt.mp_Credentials;
             if(!loginRslt.isSuccess) {
-                message = 'User login Failed for username('+screening.Screener__r.Email+') : error-code : '+loginRslt.errorCode+', error-message : '+loginRslt.errorMessage;
-                connector.createErrorLog('HireVue Candidate creation for Screening('+screening.Name+')', null, message, message, 'ScreeningHelper.cls', 'createCandidateInHireVue');
+                message = 'User login Failed for username('+screening.Screener__r.Email+'):'+ connector.constructErrorMesage(loginRslt.errorCode, loginRslt.errorMessage);
+                connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_CREATION+'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_SCREENINGHELPER, 'createCandidateInHireVue');
                 return;
             }
             HireVueObjects.Candidate candidate = new HireVueObjects.Candidate();
@@ -66,26 +64,26 @@ public class ScreeningHelper {
             candidate.timezone = screening.Screener__r.TimeZoneSidKey;
             HireVueAPI.SaveResult candidateSaveRst = connector.createAndAssignCandidateToPostion(screening.Screener__r.Hirevue_Position_Id__c, screening.Screener__r.Email, candidate);
             if(!candidateSaveRst.isSuccess) {
-                message = 'Candidate Creation Failed for position('+screening.Screener__r.Hirevue_Position_Id__c+') : error-code : '+candidateSaveRst.errorCode+', error-message : '+candidateSaveRst.errorMessage;
-                connector.createErrorLog('HireVue Candidate creation for Screening('+screening.Name+')', null, message, message, 'ScreeningHelper.cls', 'createCandidateInHireVue');
+                message = 'Candidate Creation Failed for position('+screening.Screener__r.Hirevue_Position_Id__c+'):' + connector.constructErrorMesage(candidateSaveRst.errorCode, candidateSaveRst.errorMessage);
+                connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_CREATION+'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_SCREENINGHELPER, 'createCandidateInHireVue');
                 return;
             }
             HireVueAPI.QueryResult candidateQryRslt = connector.getCandidateAttachedToPostion(screening.Screener__r.Hirevue_Position_Id__c, candidateSaveRst.recordId);
             if(!candidateQryRslt.isSuccess) {
-                message = 'Candidate fetch failed for position('+screening.Screener__r.Hirevue_Position_Id__c+') : error-code : '+candidateQryRslt.errorCode+', error-message : '+candidateQryRslt.errorMessage;
-                connector.createErrorLog('HireVue Candidate creation for Screening('+screening.Name+')', null, message, message, 'ScreeningHelper.cls', 'createCandidateInHireVue');
+                message = 'Candidate fetch failed for position('+screening.Screener__r.Hirevue_Position_Id__c+'):' + connector.constructErrorMesage(candidateQryRslt.errorCode, candidateQryRslt.errorMessage);
+                connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_CREATION+'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_SCREENINGHELPER, 'createCandidateInHireVue');
                 return;
             }
             candidate = (HireVueObjects.Candidate)candidateQryRslt.data;
             update new Screening__c(
                 Id = screeningId,
-               	Interviewer_Interview_Link__c = connector.mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL)+'/interviews/'+candidate.code+'/manager/'+candidate.myEvaluation.participantCode+'/#/',
+               	Interviewer_Interview_Link__c = connector.mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL)+HireVueConstants.PATH_INTERVIEWS+candidate.code+'/manager/'+candidate.myEvaluation.participantCode+'/#/',
                 HireVue_Interview_Id__c = candidateSaveRst.recordId,
                 Hirevue_Position_Id__c = screening.Screener__r.Hirevue_Position_Id__c,
-                Candidate_Interview_Link__c = connector.mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL)+'/interviews/'+candidate.code+'/candidate/'
+                Candidate_Interview_Link__c = connector.mp_HireVueConfigs.get(HireVueConstants.HIREVUE_CONFIG_KEY_BASE_URL)+HireVueConstants.PATH_INTERVIEWS+candidate.code+'/candidate/'
             );
         } catch(Exception ex) {
-            connector.createErrorLog('HireVue Candidate creation for Screening('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), 'ScreeningHelper.cls', 'createCandidateInHireVue');
+            connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_CREATION+'('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), HireVueConstants.CLASS_SCREENINGHELPER, 'createCandidateInHireVue');
         }
     }
     @future(callout=true)
@@ -104,18 +102,18 @@ public class ScreeningHelper {
             ];
             HireVueAPI.SaveResult svRslt = connector.bindEvaluatorsToPostion(screening.Hirevue_Position_Id__c, screening.Screener__r.Email);
             if(!svRslt.isSuccess && svRslt.errorCode != HireVueConstants.ERROR_DUPLICATE_EVALUATOR) {
-                message = 'Evaluator assigning failed for a candidate record('+screening.HireVue_Interview_Id__c+') : error-code : '+svRslt.errorCode+', error-message : '+svRslt.errorMessage;
-                connector.createErrorLog('HireVue Screener Change for Screening('+screening.Name+')', null, message, message, 'ScreeningHelper.cls', 'addEvaluatorToPostion');
+                message = HireVueConstants.MSG_EVALUATION_ASSIGNMENT_FAILED+'('+screening.HireVue_Interview_Id__c+'):' + connector.constructErrorMesage(svRslt.errorCode, svRslt.errorMessage);
+                connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_CHANGE+'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_SCREENINGHELPER, 'addEvaluatorToPostion');
                 return;
             }
             svRslt = connector.assignEvaluatorToInterview(screening.Hirevue_Position_Id__c, screening.HireVue_Interview_Id__c, screening.Screener__r.Email);
             if(!svRslt.isSuccess) {
-                message = 'Evaluator assigning failed for a candidate record('+screening.HireVue_Interview_Id__c+') : error-code : '+svRslt.errorCode+', error-message : '+svRslt.errorMessage;
-                connector.createErrorLog('HireVue Screener Change for Screening('+screening.Name+')', null, message, message, 'ScreeningHelper.cls', 'addEvaluatorToPostion');
+                message = HireVueConstants.MSG_EVALUATION_ASSIGNMENT_FAILED+'('+screening.HireVue_Interview_Id__c+'):' + connector.constructErrorMesage(svRslt.errorCode, svRslt.errorMessage);
+                connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_CHANGE+'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_SCREENINGHELPER, 'addEvaluatorToPostion');
                 return;
             }
         } catch(Exception ex) {
-            connector.createErrorLog('HireVue Screener Change for Screening('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), 'ScreeningHelper.cls', 'addEvaluatorToPostion');
+            connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_CHANGE+'('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), HireVueConstants.CLASS_SCREENINGHELPER, 'addEvaluatorToPostion');
         }
     }
     @future(callout=true)
@@ -132,22 +130,22 @@ public class ScreeningHelper {
                 WHERE
                     Id = :screeningId
             ];
-            HireVueAPI.LoginResult loginRslt = connector.getLoginCrendentials(screening.Screener__r.Email);
+            HireVueAPI.LoginResult loginRslt = connector.getLoginCredentials(screening.Screener__r.Email);
             connector.mp_Credentials = loginRslt.mp_Credentials;
             if(!loginRslt.isSuccess) {
-                message = 'User login Failed for username('+screening.Screener__r.Email+') : error-code : '+loginRslt.errorCode+', error-message : '+loginRslt.errorMessage;
-                connector.createErrorLog('HireVue Candidate Deletion for Screening('+screening.Name+')', null, message, message, 'ScreeningHelper.cls', 'deleteCandidateFromPostion');
+                message = 'User login Failed for username('+screening.Screener__r.Email+'):'+ connector.constructErrorMesage(loginRslt.errorCode, loginRslt.errorMessage);
+                connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_DELETION+'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_SCREENINGHELPER, 'deleteCandidateFromPostion');
                 return;
             }
             HireVueObjects.Candidate candidate = new HireVueObjects.Candidate();
             candidate.isArchived = true;
             HireVueAPI.SaveResult candidateUpdateRslt = connector.updateCandidate(screening.Hirevue_Position_Id__c, screening.HireVue_Interview_Id__c, candidate);
             if (!candidateUpdateRslt.isSuccess) {
-                message = 'Failed while archiving a candidate record('+screening.HireVue_Interview_Id__c+')  : error-code : '+candidateUpdateRslt.errorCode+', error-message : '+candidateUpdateRslt.errorMessage;
-                connector.createErrorLog('HireVue Candidate Deletion for Screening('+screening.Name+')', null, message, message, 'ScreeningHelper.cls', 'deleteCandidateFromPostion');
+                message = 'Failed while archiving a candidate record('+screening.HireVue_Interview_Id__c+'):' + connector.constructErrorMesage(candidateUpdateRslt.errorCode, candidateUpdateRslt.errorMessage);
+                connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_DELETION+'('+screening.Name+')', null, message, message, HireVueConstants.CLASS_SCREENINGHELPER, 'deleteCandidateFromPostion');
             }
         } catch(Exception ex) {
-            connector.createErrorLog('HireVue Candidate Deletion for Screening('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), 'ScreeningHelper.cls', 'deleteCandidateFromPostion');
+            connector.createErrorLog(HireVueConstants.MSG_CANDIDATE_DELETION+'('+screening.Name+')', ex.getLineNumber(), ex.getMessage(), ex.getStackTraceString(), HireVueConstants.CLASS_SCREENINGHELPER, 'deleteCandidateFromPostion');
         }
     }
 }

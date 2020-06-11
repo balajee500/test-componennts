@@ -14,9 +14,12 @@ public class HireVueConstants {
     public static final String API_USER = '/api/v1/users/';
     public static final String API_ACCOUNTS = '/api/v1/accounts/';
     public static final String API_QUESTION_TEMPLATE = '/api/v1/question-templates/?qr=1&qf=[account.id:self.accountId]';
-	//Hirvue Config Key
+    //Api Paths
+    public static final String PATH_INTERVIEWS = '/interviews/';
+    public static final String PATH_SESSIONS = '/sessions/';
+    //Hirvue Config Key
 	public static final String HIREVUE_CONFIG_KEY_USERNAME = 'UserName';
-    public static final String HIREVUE_CONFIG_KEY_PASSWORD = 'Password';
+    public static final String HIREVUE_CONFIG_KEY_API_CODE = 'Password';
     public static final String HIREVUE_CONFIG_KEY_APPLICATION_TOKEN = 'ApplicationToken';
 	public static final String HIREVUE_CONFIG_KEY_VERSION = 'version';
     public static final String HIREVUE_CONFIG_KEY_POSITION_TEAM_ID = 'TeamId';
@@ -36,12 +39,14 @@ public class HireVueConstants {
     //Error
     public static final String ERROR_USER_NOT_FOUND = 'UserNotFoundError'; 
     public static final String ERROR_DUPLICATE_EVALUATOR = 'DuplicateEvaluator';
-    //Response Header
+    //Req & Response Header
     public static final String HDR_KEY_API_ERROR = 'X-HvApi-Error';
-    //Request Header
     public static final String HDR_KEY_SEND_CANDIDATE_CANCELLATION_EMAIL = 'x-send-candidate-cancellation-email';
     public static final String HDR_KEY_SEND_INTERVIEWER_CANCELLATION_EMAIL = 'x-send-interviewers-cancellation-email';
     public static final String HDR_KEY_SUPPRESS_CANDIDATE_EMAIL = 'x-suppress-candidate-email';
+    public static final String HDR_KEY_SET_COOKIE = 'Set-Cookie';
+    public static final String HDR_KEY_CSRFTOKEN = 'csrftoken';
+    public static final String HDR_KEY_HVAPI_ID = 'x-hvapi-id';
     //Roles
     public static final String USR_ROLE_SCREENER = 'Screener';
     //Status
@@ -60,4 +65,20 @@ public class HireVueConstants {
     public static final String RATING_MODE_PER_Interview = 'per-interview';
     //decision
     public static final Map<String, String> DECISION_VALUES_MAPPING = new Map<String, String> {'yes'=>'Yes', 'no'=>'No', 'maybe'=>'Maybe'};
+    //classes
+    public static final String CLASS_HIREVUENOTIFICATION = 'HireVueNotification.cls';
+    public static final String CLASS_SCREENINGHELPER = 'ScreeningHelper.cls';
+    //methods
+    public static final String METHOD_UPDATE_AVERAGE_RATING = 'updateAverageRatingOnSFScreeningRecord';
+    //Messages
+    public static final String MSG_EVALUATION_EXTRACTION = 'HireVue Evaluation Extraction for screening';
+    public static final String MSG_CANDIDATE_CREATION = 'HireVue Candidate creation for Screening';
+    public static final String MSG_CANDIDATE_CHANGE = 'HireVue Screener Change for Screening';
+    public static final String MSG_CANDIDATE_DELETION = 'HireVue Candidate Deletion for Screening';
+    public static final String MSG_EVALUATION_ASSIGNMENT_FAILED = 'Evaluator assigning failed for a candidate record';
+    //Test class constants
+    public static final String TEST_DATA_USER_EMAIL_ADDRESS_1 = 'abc@hirevuenotificationtestbytekclan.com';
+    public static final String TEST_DATA_USER_EMAIL_ADDRESS_2 = 'abc@usertriggettestbytekclan.com';
+    public static final String TEST_DATA_COOKIE_VALUE = 'ajs_group_id=null; _ga=GA1.2.1685704596.1588138661; _gid=GA1.2.1399613300.1588579095; cookie_policy={"date":1588118052000,"analytic":true,"customization":true}; ajs_user_id=%22bb5780e52a634a23b68e3feffde997f5%22; ajs_anonymous_id=%229e8f8920-128d-489d-b157-24db4c027b47%22; csrftoken=hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil; sessionid=0pdat9uz0drs5ys4dgg573mgpj3058hl';
+    public static final String TEST_DATA_CSRFTOKEN_VALUE = 'hsE9ugmTpIaqJw252Gd4hOK06U34IkCsPtq8q0hM29IoD9kinVYm0GzWHGLiLcil';
 }
